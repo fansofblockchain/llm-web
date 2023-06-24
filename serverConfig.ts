@@ -1,0 +1,20 @@
+let baseURL = "";
+switch (
+  process.env.NODE_ENV //可以在根目录的 package.json 配置 NODE_ENV
+) {
+  case "production":
+    baseURL = "http://model.responds.top";
+    // baseURL = "http://btcxinghao.com";
+    // baseURL = "https://signarl.com";
+    break;
+  case "development":
+    baseURL = "http://model.responds.top";
+    break;
+  default:
+    baseURL = "http://model.responds.top";
+}
+const serverConfig: any = {
+  baseURL: baseURL, // 请求基础地址,可根据环境自定义
+  useTokenAuthorization: true, // 是否开启 token 认证
+};
+export default serverConfig;

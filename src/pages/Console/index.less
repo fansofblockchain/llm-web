@@ -1,0 +1,110 @@
+@import "@/custom-theme.less";
+
+#console-container {
+  .fiss-bar {
+    width: 140px;
+    // line-height: 36px;
+    font-size: 14px;
+    margin-right: 16px;
+    border-radius: 3px;
+    margin-right: 8px;
+    color: @font-color-1;
+    padding: 9px 12px;
+    cursor: pointer;
+    &:hover {
+      background-color: @primary-color-13;
+    }
+  }
+  .bar-select {
+    background-color: @brand-color-10;
+    &:hover {
+      background-color: @brand-color-10;
+    }
+  }
+  .bar-icon {
+    margin-right: 9px;
+    // width: 14px;
+    height: 18px;
+    padding-top: 6px;
+    line-height: 36px;
+  }
+
+  .header {
+    display: flex;
+    // justify-content: space-between;
+    height: 56px;
+    padding-inline: 0;
+    background-color: @primary-color-16;
+    align-items: center;
+    border-bottom: 1px solid @primary-color-13;
+    .logo {
+      width: 200px;
+      color: @font-color-5;
+      font-size: 22px;
+      font-weight: 600;
+      display: flex;
+      cursor: pointer;
+      
+    }
+    .logo-img {
+      // width: 64px;
+      height: 48px;
+      padding: 10px;
+      border-radius: 10px;
+      margin-left: 16px;
+    }
+    .user-box {
+      width: 32px;
+      height: 32px;
+      background-color: @primary-color-13;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px;
+      position: absolute;
+      right: 24px;
+      cursor: pointer;
+      .user-icon {
+        font-size: 13px;
+      }
+    }
+  }
+  .menu {
+    background: url("@/assets/chat/slider.png") no-repeat;
+    background-size: 100%;
+    background-color: @primary-color-15;
+    background-position: 50% 100%;
+  }
+  .c-banner {
+    height: 200px;
+    width: 100%;
+    // border: solid 1px #ccc;
+    font-family: Helvetica;
+    font-size: 32px;
+    color: #ffffff;
+    letter-spacing: 0;
+    line-height: 44px;
+    font-weight: 400;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+
+    background-image: url("@/assets/chat/banner2.png");
+    background-size: cover;
+    img {
+      height: 42px;
+    }
+    // background-position: 0% 70%;
+  }
+  .c-chat {
+    height: calc(100% - 218px);
+    width: calc(100%);
+    margin-top: 18px;
+    border: solid 1px @brand-color-10;
+  }
+}
+
+.scene-add {
+  width: 800px;
+  height: 400px;
+}

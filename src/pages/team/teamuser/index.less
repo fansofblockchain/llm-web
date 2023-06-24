@@ -1,0 +1,90 @@
+@import "@/custom-theme.less";
+#user-containter {
+  border: 1px solid @primary-color-13;
+  border-radius: 5px;
+  width: 100%;
+  height: calc(100%);
+  .user-box {
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+    height: calc(100% - 38px);
+  }
+  .user-title {
+    padding: 8px;
+    border-bottom: 1px solid @primary-color-13;
+    text-align: center;
+  }
+  .user-item {
+    height: 39px;
+    width: 180px;
+    margin: 4px 8px;
+    display: flex;
+    justify-content: space-between;
+    // line-height: 36px;
+    font-size: 14px;
+    margin-right: 16px;
+    border-radius: 3px;
+    margin-right: 8px;
+    // color: @font-color-1;
+    padding: 9px 12px;
+    cursor: pointer;
+    &:hover {
+      background-color: @primary-color-13;
+    }
+    .edit {
+      &:hover {
+        color: @brand-color-5;
+      }
+    }
+  }
+  .add-user {
+    border: 1px solid @primary-color-13;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 12px;
+  }
+  .user-item-select {
+    background-color: @brand-color-10;
+    &:hover {
+      background-color: @brand-color-10;
+    }
+  }
+}
+#components-form-demo-control-ref .ant-btn {
+  margin-right: 8px;
+}
+
+#user-operate {
+  .operate-box {
+    // width: 120px;
+    display: flex;
+    justify-content: space-between;
+    // line-height: 36px;
+    font-size: 14px;
+    border-radius: 3px;
+    // color: @font-color-1;
+    // padding: 9px 12px;
+    cursor: pointer;
+    &:hover {
+      background-color: @primary-color-13;
+    }
+  }
+}
+
+.ant-popover-inner {
+  // padding: 0 !important;
+}
+// 滚动条设置为0
+// ::-webkit-scrollbar {
+//   width: 0;
+// }
+
+// ::-webkit-scrollbar-track {
+//   background: transparent;
+// }
+
+// ::-webkit-scrollbar-thumb {
+//   background: transparent;
+// }
