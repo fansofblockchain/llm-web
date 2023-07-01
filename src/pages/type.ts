@@ -22,3 +22,10 @@ export interface ChatParams {
   topic_id?: number;
   user_id?: number;
 }
+
+
+export interface ChatDetailParams {
+  chat_id?: string;
+  content?: string;
+  send?: string;
+}

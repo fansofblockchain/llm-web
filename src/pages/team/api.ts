@@ -134,3 +134,21 @@ export const getTeamUserList = (params: { team_id: number }) => {
     params,
   });
 };
+
+export const getFileList = (params: { topic_id: number }) => {
+  /**获取主题语料文件 */
+  return http({
+    url: "/files/get_list",
+    method: "get",
+    params,
+  });
+};
+
+export const deleteFile = (params: { id: string }) => {
+  /**删除主题语料文件 */
+  return http({
+    url: "/files/delete",
+    method: "get",
+    params,
+  });
+};

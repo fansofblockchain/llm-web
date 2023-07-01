@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Avatar, Skeleton, Input } from "antd";
+import { Card, Avatar, Skeleton, Input, Row, Col } from "antd";
 import {
   DeleteOutlined,
   LoadingOutlined,
@@ -13,8 +13,16 @@ import userHeaderImg from "@/assets/chat/user_header.png";
 import ReactMarkdown from "react-markdown";
 //@ts-ignore
 import getSimilarTextByUrl from "@/api/langchain";
-import { addChat, deleteChat, updateChat, getChatlist } from "../api";
+import {
+  addChat,
+  deleteChat,
+  updateChat,
+  getChatlist,
+  getChatDetaillist,
+  addChatDetail,
+} from "../api";
 import { ChatParams } from "../type";
+import logoImg from "@/assets/logo.svg";
 
 import "./index.less";
 
@@ -36,6 +44,7 @@ interface ChatModel {
   id: string;
   is_query: boolean;
   question: string;
+  model?: string;
 }
 
 interface HistoryItem {
@@ -73,6 +82,9 @@ const Chat = (props: { topic_id?: number }) => {
       const res: any = await getChatlist({ topic_id: topic_id });
       if (res.code === 0) {
         setList(res.data);
+        // if (res.data.length > 0) {
+        //   setChatList(res.data[0].id);
+        // }
       }
     }
     setLoading(false);
@@ -86,14 +98,14 @@ const Chat = (props: { topic_id?: number }) => {
   }, [chatList]);
 
   useEffect(() => {
-    initData();
+    if (topic_id) {
+      initData();
+    }
   }, [topic_id]);
-
 
   // useEffect(() => {
   //   initData();
   // }, [selectChatId]);
-
 
   useEffect(() => {
     setQuestion("");
@@ -107,15 +119,25 @@ const Chat = (props: { topic_id?: number }) => {
     const questionMsg: HistoryItem | undefined = history.pop();
     // 获取结构化数据库
     const data: ChatModel = {
-      id: "id_234324",
-      is_query: true,
+      id: selectChatId,
+      is_query: topic_id === 4 ? false : true,
       question: questionMsg ? questionMsg.content : "",
-      history,
+      history: [],
+      model: "v2",
     };
     let allTexts = "";
     try {
+      // 新增对话
+      let newSelectChatId = selectChatId;
+      if (selectChatId === "temp_id") {
+        newSelectChatId = await handleOpreate({
+          id: selectChatId,
+          name: questionMsg ? questionMsg.content.slice(0, 5) : "新增对话",
+        });
+      }
+      console.log("newSelectChatId", newSelectChatId);
       await getSimilarTextByUrl(
-        data,
+        { ...data, id: newSelectChatId },
         (text: any, status: "loading" | "ended") => {
           if (status === "ended") {
             setAiResponseLoading(false);
@@ -127,19 +149,22 @@ const Chat = (props: { topic_id?: number }) => {
               },
             ]);
             setAiResponse("");
+            addChatDetail({
+              chat_id: newSelectChatId,
+              content: allTexts,
+              send: "ASSISTANT",
+            });
           } else {
+            // if (data.model) {
+            //   allTexts += text;
+            //   setAiResponse(allTexts);
+            // } else {
             allTexts = text;
             setAiResponse(text.replaceAll("�", ""));
+            // }
           }
         }
       );
-      // 新增对话
-      if (selectChatId === "temp_id") {
-        handleOpreate({
-          id: selectChatId,
-          name: questionMsg ? questionMsg.content.slice(0, 5) : "新增对话",
-        });
-      }
     } catch (error) {
       console.log("error", error);
       setChatList([
@@ -166,10 +191,13 @@ const Chat = (props: { topic_id?: number }) => {
     let res: any;
     let newList: any = [...list];
     if (chat.id === "temp_id") {
-      res = await addChat({ name: chat.name, topic_id });
+      res = await addChat({ name: chat.name, topic_id, decription: "" });
       if (res.code === 0) {
         newList.unshift(res.data);
         setSelectChatId(res.data.id);
+        setOperateType("view");
+        setList(newList);
+        return res.data.id; //新增时返回chat_id
       }
     } else if (operateType === "edit") {
       res = await updateChat({ ...chat, name: chatName });
@@ -193,14 +221,13 @@ const Chat = (props: { topic_id?: number }) => {
           if (deleteIndex > -1) {
             newList.splice(deleteIndex, 1);
           }
+          setSelectChatId("temp_id");
         }
       }
     }
     setOperateType("view");
     setList(newList);
   };
-
-
 
   const handleSubmit = () => {
     if (aiResponseLoading) {
@@ -216,9 +243,15 @@ const Chat = (props: { topic_id?: number }) => {
     ]);
   };
 
- 
-
-
+  async function handleChangeChat(chat_id: string) {
+    const res: any = await getChatDetaillist({ chat_id });
+    if (res.code === 0 && Array.isArray(res.data)) {
+      res.data.forEach((item: any) => {
+        item.role = item.send.toLowerCase();
+      });
+      setChatList(res.data);
+    }
+  }
   function scrollToBottom() {
     var chatContainer = document.getElementById("chat-box");
     if (chatContainer) {
@@ -226,34 +259,14 @@ const Chat = (props: { topic_id?: number }) => {
     }
   }
 
+  const texts = [
+    "写一个关于手机的文案策划",
+    "写一个小故事关于小熊和维尼",
+    "写一个工业制造的未来畅想",
+  ];
+
   return (
     <div id="chat-list">
-      {/* <div className="chat-header">
-        {brandBars.map((brandBar) => (
-          <div
-            className={`${
-              selectBrandBar === brandBar.key ? "bar-select " : " "
-            }fiss-bar chat-bar`}
-            onClick={() => {
-              if (aiResponseLoading) {
-                return;
-              }
-              if (selectBrandBar !== "chat-manager") {
-                setChatHistory({
-                  ...chatHistory,
-                  [selectBrandBar]: chatList,
-                });
-              }
-              if (brandBar.key === "chat" || brandBar.key === "kb_chat") {
-                setChatList(chatHistory[brandBar.key]);
-              }
-              setSelectBrandBar(brandBar.key);
-            }}
-          >
-            {brandBar.label}
-          </div>
-        ))}
-      </div> */}
       <div className="chat-content">
         <div className="chat-l">
           {[
@@ -277,6 +290,7 @@ const Chat = (props: { topic_id?: number }) => {
               }}
               onClick={() => {
                 setSelectChatId(item.id);
+                handleChangeChat(item.id);
               }}
             >
               <div className="l-cont">
@@ -345,8 +359,7 @@ const Chat = (props: { topic_id?: number }) => {
         </div>
         <div className="chat-r">
           <div className="chat-r-c" id="chat-box">
-            {chatList &&
-              chatList &&
+            {chatList && chatList.length > 0 ? (
               chatList.map((chatListItem: any) => (
                 <div className="c-r-content">
                   <Avatar
@@ -366,7 +379,53 @@ const Chat = (props: { topic_id?: number }) => {
                     <ReactMarkdown children={chatListItem.content} />
                   </div>
                 </div>
-              ))}
+              ))
+            ) : (
+              <>
+                <Row className="logo-demo">
+                  <img className="logo-img" src={logoImg} alt="" />
+                </Row>
+                <Row>
+                  <Col span={6}></Col>
+                  <Col span={6} className="chat-demo-col">
+                    <div
+                      className="chat-demo-bar"
+                      style={{
+                        textAlign: "center",
+                        fontSize: "16px",
+                        marginBottom: "30px",
+                      }}
+                    >
+                      尝试下列案例
+                    </div>
+                    {texts.map((text) => (
+                      <div
+                        className="chat-demo-bar"
+                        onClick={() => setQuestion(text)}
+                      >{`${text} -->`}</div>
+                    ))}
+                  </Col>
+                  <Col span={6} className="chat-demo-col">
+                    <div
+                      className="chat-demo-bar"
+                      style={{
+                        textAlign: "center",
+                        fontSize: "16px",
+                        marginBottom: "40px",
+                      }}
+                    >
+                      模型的能力
+                    </div>
+                    <div className="chat-demo-bar">
+                      {`全面离线部署，无需联网`}
+                    </div>
+                    <div className="chat-demo-bar">{`私有模型，团队协作`}</div>
+                    <div className="chat-demo-bar">{`专业数据，专业问答`}</div>
+                  </Col>
+                  <Col span={6}></Col>
+                </Row>
+              </>
+            )}
             {(aiResponse || aiResponseLoading) && (
               <div className="c-r-content" style={{ marginBottom: "100px" }}>
                 <Avatar

@@ -13,7 +13,7 @@ import logoImg from "@/assets/logo.svg";
 import React from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { getUser } from "../api";
-
+import localStorageService from "../../utils/LocalStorageService";
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 const { Header, Content, Sider } = Layout;
@@ -41,6 +41,7 @@ const menus = [
     key: "account",
     icon: NotificationOutlined,
     label: "用户管理",
+    user_auth: 1,
     children: [
       {
         key: "user-list",
@@ -51,24 +52,11 @@ const menus = [
   },
 ];
 
-const items2: MenuProps["items"] = menus.map((menu, index) => {
-  return {
-    key: menu.key,
-    icon: React.createElement(menu.icon),
-    label: menu.label,
-    children: menu.children.map((menu_child, j) => {
-      return {
-        key: menu_child.key,
-        label: menu_child.label,
-      };
-    }),
-  };
-});
-
 const LayoutContainer: React.FC = () => {
   const isMobile = window.mobileCheck();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(isMobile ? true : false);
+  const [user, setUser] = useState<any>({});
 
   const {
     token: { colorBgContainer },
@@ -76,6 +64,31 @@ const LayoutContainer: React.FC = () => {
   const [selectMenu, setSelectMenu] = useState(["list"]);
   const [isDarkMode, setIsDarkMode] = useState(true);
 
+  useEffect(() => {
+    initUser();
+  }, []);
+
+  async function initUser() {
+    const res: any = await getUser();
+    localStorageService.setItem("user", res.data);
+    setUser(res.data);
+  }
+
+  const items2: MenuProps["items"] = menus.map((menu, index) => {
+    return !menu.user_auth || menu.user_auth === user.user_auth
+      ? {
+          key: menu.key,
+          icon: React.createElement(menu.icon),
+          label: menu.label,
+          children: menu.children.map((menu_child, j) => {
+            return {
+              key: menu_child.key,
+              label: menu_child.label,
+            };
+          }),
+        }
+      : null;
+  });
   let crumbs: any;
   menus.forEach((menu) => {
     menu.children.forEach((menu_child) => {
@@ -84,10 +97,6 @@ const LayoutContainer: React.FC = () => {
       }
     });
   });
-
-  useEffect(() => {
-    const res = getUser();
-  }, []);
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Form, Input, Select, Switch } from "antd";
+import React, { useEffect } from "react";
+import { Form, Input, Switch } from "antd";
 import "./index.less";
-import type { SelectProps } from "antd";
 import { TeamParams } from "../type";
 
 const layout = {

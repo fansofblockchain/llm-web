@@ -1,4 +1,4 @@
-import { EditOutlined, SearchOutlined, PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined,PlusOutlined } from "@ant-design/icons";
 import { Avatar, Card, Skeleton, Switch, Modal, message, Spin } from "antd";
 import React, { useState, useEffect } from "react";
 import { TopicParams } from "../../team/type";
@@ -47,6 +47,8 @@ const App = (props: Props) => {
       setSaveLoading(true);
       const putData = {
         ...data,
+        decription: data.decription || "",
+        prompts: data.prompts || "",
       };
       let result: any;
       if (editParams) {
@@ -111,7 +113,9 @@ const App = (props: Props) => {
         ))}
         {!list ||
           (list.length === 0 && (
-            <div style={{ textAlign: "center", color: "#666666" }}>请先添加主题</div>
+            <div style={{ textAlign: "center", color: "#666666" }}>
+              请先添加主题
+            </div>
           ))}
 
         {!readonly && (

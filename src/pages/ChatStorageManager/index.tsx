@@ -38,9 +38,9 @@ const columns: ColumnsType<DataType> = [
           Modal.info({
             title: "是否删除该文档",
             content: "删除该文档后模型将无法根据该文档进行问答",
-            onOk:()=>{
-              console.log('删除')
-            }
+            onOk: () => {
+              console.log("删除");
+            },
           });
         }}
       >
@@ -59,33 +59,41 @@ for (let i = 0; i < 100; i++) {
   });
 }
 
-const props: UploadProps = {
-  name: "file",
-  multiple: true,
-  action: "http://model.responds.top/api/demo/uploadfile/",
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== "uploading") {
-      console.log(info.file, info.fileList);
-    }
-    if (status === "done") {
-      message.success(`${info.file.name} 训练完成.`);
-    } else if (status === "error") {
-      message.error(`${info.file.name} 上传失败.`);
-    }
-  },
-  onDrop(e) {
-    console.log("Dropped files", e.dataTransfer.files);
-  },
-};
+interface Props {
+  topic_id: number;
+}
 
-const ChatStorageManager: React.FC = () => {
+const ChatStorageManager = (props: Props) => {
+  const { topic_id } = props;
   const [list, setList] = useState([]);
+  console.log(
+    "{topic_id}`",
+    `http://model.responds.top/api/demo/uploadfile/${topic_id}`
+  );
+  const uploadProps: UploadProps = {
+    name: "file",
+    multiple: true,
+    action: `http://model.responds.top/api/demo/uploadfile/${topic_id}`,
+    onChange(info) {
+      const { status } = info.file;
+      if (status !== "uploading") {
+        console.log(info.file, info.fileList);
+      }
+      if (status === "done") {
+        message.success(`${info.file.name} 训练完成.`);
+      } else if (status === "error") {
+        message.error(`${info.file.name} 上传失败.`);
+      }
+    },
+    onDrop(e) {
+      console.log("Dropped files", e.dataTransfer.files);
+    },
+  };
 
   return (
     <div id="chat-manager">
       <div className="upload-box">
-        <Dragger {...props} className="upload-box">
+        <Dragger {...uploadProps} className="upload-box">
           <p className="ant-upload-text upload-text">
             您可以导入任何你获取的文件文档
           </p>

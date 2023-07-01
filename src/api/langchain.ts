@@ -3,12 +3,26 @@ interface ChatModel {
   id: string;
   question: string;
   is_query?: boolean;
+  model?: boolean;
 }
 
 interface HistoryItem {
   role: "user" | "assistant";
   content: string;
 }
+
+function debounce(func: Function, delay: number) {
+  let timeoutId: any;
+
+  return  (...args: any) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      // @ts-ignore
+      func.apply(this, args);
+    }, delay);
+  };
+}
+
 // 创建一个接收 Response event stream 的方法
 export default async function getResponseEventStream(
   data: ChatModel,
@@ -35,8 +49,7 @@ export default async function getResponseEventStream(
         const result = await reader.read();
         // 处理数据块，将其转换为字符串
         const chunk = new TextDecoder("utf-8").decode(result.value);
-        console.log("chunk>>>", chunk);
-
+        // console.log("chunk>>>", chunk);
         if (result.done) {
           console.log("Response event stream ended.");
           setTimeout(
@@ -46,15 +59,22 @@ export default async function getResponseEventStream(
           return;
         } else {
           let newChunk = chunk;
-          if (chunk.indexOf(`}{"text"`) > -1) {
+          if (chunk.indexOf(`}{"text"`) > -1 && !data.model) {
             let index = chunk.lastIndexOf("}{");
             newChunk = chunk.slice(index + 1);
           }
           try {
-            getChunk(
-              JSON.parse(newChunk).text,
+            debounce( getChunk(
+              data.model
+                ? newChunk
+                    .replace("('role', 'assistant', '", "")
+                    .replace("('role', 'assistant", "")
+                    .replace("('content', '", "")
+                    .replace("')", "")
+                : JSON.parse(newChunk).text,
               result.done ? "ended" : "loading"
-            );
+            ), 1000);
+           
           } catch (error) {
             console.log("error:对象不是一个json对象");
           }
@@ -62,7 +82,10 @@ export default async function getResponseEventStream(
         // 继续读取
         setTimeout(() => readData(), 0);
       } catch (error) {
-        getChunk(`<font color="#660000"> Error:  服务器发生错误 </font>`, "error");
+        getChunk(
+          `<font color="#660000"> Error:  服务器发生错误 </font>`,
+          "ended"
+        );
       }
     }
 

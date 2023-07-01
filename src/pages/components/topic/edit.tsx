@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Form, Input } from "antd";
 import "./index.less";
 import { TopicParams } from "../../team/type";
+import localStorageService from "../../../utils/LocalStorageService";
 
 const layout = {
   labelCol: { span: 8 },
@@ -14,6 +15,10 @@ interface Prop {
 }
 
 const App: React.FC<Prop> = ({ param, formRef }) => {
+  const storedUser = localStorageService.getItem(
+    "user"
+  );
+  console.log(storedUser);
   useEffect(() => {
     initData();
     return () => {

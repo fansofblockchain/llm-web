@@ -7,6 +7,7 @@ import "./index.less";
 import type { FormInstance } from "antd/es/form";
 import { getTeamList, addTeam, updateTeam } from "../api";
 import { useNavigate } from "react-router-dom";
+import localStorageService from "../../../utils/LocalStorageService";
 
 const { Meta } = Card;
 
@@ -19,7 +20,7 @@ const App: React.FC = () => {
   const [list, setList] = useState<TeamParams[]>([]);
   const [saveLoading, setSaveLoading] = useState(false);
   const navigate = useNavigate();
-
+  const storedUser: any = localStorageService.getItem("user");
   useEffect(() => {
     fetchData();
   }, []);
@@ -39,6 +40,7 @@ const App: React.FC = () => {
       setSaveLoading(true);
       const putData = {
         ...data,
+        decription: data.decription || "",
         state: data.state ? "enabled" : "disabled",
       };
       let result: any;
@@ -79,62 +81,66 @@ const App: React.FC = () => {
     <div id="team-container">
       {contextHolder}
       <div style={{ display: "flex", flexWrap: "wrap" }}>
-        {list.map((param: TeamParams) => (
+        {list.map((param: TeamParams) =>
+          param.team_id === 4 ? null : (
+            <Card
+              key={param.id}
+              onClick={() => {
+                navigate(`/console/team/manager?team_id=${param.id}`);
+              }}
+              className="card-box"
+              style={{
+                width: isMobile ? "100%" : 300,
+              }}
+            >
+              <Skeleton loading={loading} avatar active>
+                <Meta
+                  avatar={
+                    <Avatar>
+                      {param && param.name
+                        ? param.name[0].toLocaleUpperCase()
+                        : ""}
+                    </Avatar>
+                  }
+                  title={
+                    <div>
+                      {param.name}
+                      <EditOutlined
+                        className="edit-name"
+                        key="edit"
+                        onClick={(event: any) => {
+                          event.stopPropagation && event.stopPropagation();
+                          event.cancelBubble = true;
+                          setEditParams(param);
+                          formRef.current?.setFieldsValue(param);
+                          setOpen(true);
+                        }}
+                      />
+                    </div>
+                  }
+                  description={param.decription || ""}
+                />
+              </Skeleton>
+            </Card>
+          )
+        )}
+        {storedUser && storedUser.team_auth ? (
           <Card
-            key={param.id}
-            onClick={() => {
-              navigate(`/console/team/manager?team_id=${param.id}`);
-            }}
             className="card-box"
             style={{
               width: isMobile ? "100%" : 300,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onClick={() => {
+              setEditParams(undefined);
+              setOpen(true);
             }}
           >
-            <Skeleton loading={loading} avatar active>
-              <Meta
-                avatar={
-                  <Avatar>
-                    {param && param.name
-                      ? param.name[0].toLocaleUpperCase()
-                      : ""}
-                  </Avatar>
-                }
-                title={
-                  <div>
-                    {param.name}
-                    <EditOutlined
-                      className="edit-name"
-                      key="edit"
-                      onClick={(event: any) => {
-                        event.stopPropagation && event.stopPropagation();
-                        event.cancelBubble = true;
-                        setEditParams(param);
-                        formRef.current?.setFieldsValue(param);
-                        setOpen(true);
-                      }}
-                    />
-                  </div>
-                }
-                description={param.decription || ""}
-              />
-            </Skeleton>
+            {loading ? <Spin /> : "新增"}
           </Card>
-        ))}
-        <Card
-          className="card-box"
-          style={{
-            width: isMobile ? "100%" : 300,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onClick={() => {
-            setEditParams(undefined);
-            setOpen(true);
-          }}
-        >
-          {loading ? <Spin /> : "新增"}
-        </Card>
+        ) : null}
       </div>
       <Modal
         title="团队编辑"

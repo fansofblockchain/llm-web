@@ -10,6 +10,7 @@ export interface TopicParams {
   id?: number;
   decription?: string;
   name?: string;
+  prompts?: string;
   team_id?: number;
 }
 

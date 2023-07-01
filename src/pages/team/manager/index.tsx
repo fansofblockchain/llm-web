@@ -43,7 +43,7 @@ const App: React.FC = () => {
           />
         </div>
         <div className="center-box">
-          <ChatStorageManager />
+          <ChatStorageManager topic_id={topic_id} />
         </div>
         <div className="right-box">
           <User team_id={selectTeam} />

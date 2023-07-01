@@ -5,7 +5,7 @@ export default async function getResponseEventStream(
 ) {
   try {
     const response: any = await fetch(
-      "http://modelserve.responds.top/v1/chat/completions",
+      "http://model.responds.top/v1/chat/completions",
       {
         method: "POST", // 设置请求方法为 POST
         headers: {

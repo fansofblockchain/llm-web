@@ -43,7 +43,11 @@ const Login: React.FC = () => {
       <div>
         {contextHolder}
         <div id="login" className={isMobile ? "mobile-bg" : ""}>
-          {!isMobile && <div className="left"></div>}
+          {!isMobile && (
+            <div className="left">
+              <div className="left-text">Let AI Serve Everyone</div>
+            </div>
+          )}
           <div className="right" style={{ width: isMobile ? "100%" : "50%" }}>
             <div
               className={`login-form`}

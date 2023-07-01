@@ -1,5 +1,5 @@
 import http from "../api/http";
-import { ChatParams } from "./type";
+import { ChatParams, ChatDetailParams } from "./type";
 
 //get请求
 export const login = (data: any) => {
@@ -104,5 +104,23 @@ export const getChatlist = (params: { topic_id: number }) => {
     url: "/chats/get_list",
     method: "get",
     params,
+  });
+};
+
+export const getChatDetaillist = (params: { chat_id: string }) => {
+  /**添加对话 */
+  return http({
+    url: "/chats/get_chat_detail_list",
+    method: "get",
+    params,
+  });
+};
+
+export const addChatDetail = (data: ChatDetailParams) => {
+  /**添加对话 */
+  return http({
+    url: "/chats/add_chat_detail",
+    method: "post",
+    data,
   });
 };

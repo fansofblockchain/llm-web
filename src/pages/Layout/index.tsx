@@ -20,6 +20,7 @@ import { generate_embedding, getUser } from "../api";
 import Chat from "../Chat";
 import TeamSelect from "../components/TeamSelect";
 import TopicSelect from "../components/topic";
+import localStorageService from "../../utils/LocalStorageService";
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 const { Header, Content, Sider } = Layout;
@@ -67,11 +68,15 @@ const LayoutContainer: React.FC = () => {
     token: { colorBgContainer },
   } = theme.useToken();
   const [selectMenu, setSelectMenu] = useState(["list"]);
-  const [selectBar, setSelectBar] = useState("common");
 
   useEffect(() => {
-    const res = getUser();
+    initUser();
   }, []);
+
+  async function initUser() {
+    const res: any = await getUser();
+    localStorageService.setItem("user", res.data);
+  }
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
@@ -145,20 +150,22 @@ const LayoutContainer: React.FC = () => {
             >
               {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             </Button>
-            <Sider
-              width={collapsed ? 0 : 200}
-              style={{
-                background: "#0D0D0D",
-                left: collapsed ? -200 : 0,
-              }}
-            >
-              <TopicSelect
-                team_id={selectTeam}
-                topic_id={topic_id}
-                setTopicId={setTopicId}
-                readonly={true}
-              />
-            </Sider>
+            {selectTeam !== 4 && (
+              <Sider
+                width={collapsed ? 0 : 200}
+                style={{
+                  background: "#0D0D0D",
+                  left: collapsed ? -200 : 0,
+                }}
+              >
+                <TopicSelect
+                  team_id={selectTeam}
+                  topic_id={topic_id}
+                  setTopicId={setTopicId}
+                  readonly={true}
+                />
+              </Sider>
+            )}
 
             <Layout style={{ padding: "18px 24px 18px 24px" }}>
               <Content
@@ -172,7 +179,7 @@ const LayoutContainer: React.FC = () => {
                   <img src={bannerImg} alt="" />
                 </div>
                 <div className="c-chat">
-                  <Chat topic_id={topic_id}/>
+                  <Chat topic_id={topic_id} />
                 </div>
               </Content>
             </Layout>
