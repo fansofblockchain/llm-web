@@ -3,7 +3,7 @@ import { message, Upload, Table, Modal, UploadProps } from "antd";
 import { useState, useEffect } from "react";
 import pdfImg from "@/assets/chat/PDF.svg";
 import txtImg from "@/assets/chat/txt.svg";
-import mdImg from "@/assets/chat/md.svg";
+import mdImg from "@/assets/chat/MD.svg";
 import type { ColumnsType } from "antd/es/table";
 import { getFileList, deleteFile } from "../api";
 import { LoadingOutlined } from "@ant-design/icons";
