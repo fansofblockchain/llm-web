@@ -9,9 +9,11 @@ import User from "../teamuser";
 import TeamSelect from "../../components/TeamSelect";
 
 const App: React.FC = () => {
+  const url_team_arr = location.search.split("team_id=");
+  const url_team_id = Number(url_team_arr[1]) || undefined;
   const [messageApi, contextHolder] = message.useMessage();
-  const [selectTeam, setSelectTeam] = useState<number>();
-  const [topic_id, setTopicId] = useState<number>();
+  const [selectTeam, setSelectTeam] =  useState<number|undefined>(url_team_id);
+  const [topic_id, setTopicId] =useState<number>();
 
   const handleSelectTeam = (value: number) => {
     setSelectTeam(value);

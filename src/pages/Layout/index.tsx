@@ -150,7 +150,7 @@ const LayoutContainer: React.FC = () => {
             >
               {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             </Button>
-            {selectTeam !== 4 && (
+            {selectTeam !== 0 && (
               <Sider
                 width={collapsed ? 0 : 200}
                 style={{
@@ -176,10 +176,10 @@ const LayoutContainer: React.FC = () => {
                 }}
               >
                 <div className="c-banner">
-                  <img src={bannerImg} alt="" />
+                  {/* <img src={bannerImg} alt="" /> */}
                 </div>
                 <div className="c-chat">
-                  <Chat topic_id={topic_id} />
+                  <Chat topic_id={selectTeam === 0 ? 0 : topic_id} />
                 </div>
               </Content>
             </Layout>

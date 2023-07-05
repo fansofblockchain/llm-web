@@ -35,7 +35,9 @@ const App = (props: Props) => {
       const result: any = await getTopicList({ team_id: team_id });
       if (result.code === 0) {
         setList(result.data);
-        result.data && result.data[0] && setTopicId(result.data[0].id);
+        if(!topic_id){
+          result.data && result.data[0] && setTopicId(result.data[0].id);
+        }
       }
       setLoading(false);
     }

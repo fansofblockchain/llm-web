@@ -82,7 +82,7 @@ const App: React.FC = () => {
       {contextHolder}
       <div style={{ display: "flex", flexWrap: "wrap" }}>
         {list.map((param: TeamParams) =>
-          param.team_id === 4 ? null : (
+          param.team_id === 0 ? null : (
             <Card
               key={param.id}
               onClick={() => {
@@ -118,7 +118,7 @@ const App: React.FC = () => {
                       />
                     </div>
                   }
-                  description={param.decription || ""}
+                  description={<div className="team-description">{ param.decription || ""}</div>}
                 />
               </Skeleton>
             </Card>

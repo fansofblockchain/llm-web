@@ -34,9 +34,9 @@ const ChatStorageManager = (props: Props) => {
         item.key = item.id;
       });
       // 判断数据是否相同
-      // if (JSON.stringify(result.data) !== JSON.stringify(list)) {
+      if (JSON.stringify(result.data) !== JSON.stringify(list)) {
         setList(result.data);
-      // }
+      }
     }
     setLoading(false);
   };
@@ -103,7 +103,7 @@ const ChatStorageManager = (props: Props) => {
       if (topic_id) {
         fetchData(topic_id);
       }
-    }, 10000); // 每5秒执行一次
+    }, 10000); // 每10秒执行一次
 
     // 组件卸载时清除定时器
     return () => {
@@ -114,7 +114,7 @@ const ChatStorageManager = (props: Props) => {
   const uploadProps: UploadProps = {
     name: "file",
     multiple: true,
-    action: `http://model.responds.top/api/demo/uploadfile/${topic_id}`,
+    action: `http://web.responds.top/api/demo/uploadfile/${topic_id}`,
     onChange(info) {
       const { status } = info.file;
       if (status !== "uploading") {

@@ -5,7 +5,7 @@ export default async function getResponseEventStream(
 ) {
   try {
     const response: any = await fetch(
-      "http://model.responds.top/v1/chat/completions",
+      "http://web.responds.top/v1/chat/completions",
       {
         method: "POST", // 设置请求方法为 POST
         headers: {
@@ -42,7 +42,6 @@ export default async function getResponseEventStream(
       // 处理数据块，将其转换为字符串
       const chunk = (new TextDecoder('utf-8').decode(result.value));
       // console.log("result.value", result.value);
-      console.log("chunk>>>", chunk);
       let chunkData: any[] = [];
       const getChunkData = (chunk: any) => {
         const index = chunk.indexOf("}{");
@@ -56,8 +55,6 @@ export default async function getResponseEventStream(
         } else {
           chunkData.push(JSON.parse(chunk));
         }
-      console.log("chunkData>>>", chunkData);
-
       };
       getChunkData(chunk);
       getChunk(chunkData, result.done ? "ended" : "loading");

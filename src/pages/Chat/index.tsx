@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Avatar, Skeleton, Input, Row, Col } from "antd";
+import { Card, Avatar, Skeleton, Input, Row, Col,message } from "antd";
 import {
   DeleteOutlined,
   LoadingOutlined,
@@ -8,9 +8,15 @@ import {
   EditOutlined,
 } from "@ant-design/icons";
 import sendImg from "@/assets/chat/send.svg";
-import headerImg from "@/assets/chat/header.png";
-import userHeaderImg from "@/assets/chat/user_header.png";
+import headerImg from "@/assets/chat/chat-header.png";
+import userHeaderImg from "@/assets/chat/userheader.png";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import remarkParse from "remark-parse";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 //@ts-ignore
 import getSimilarTextByUrl from "@/api/langchain";
 import {
@@ -20,6 +26,7 @@ import {
   getChatlist,
   getChatDetaillist,
   addChatDetail,
+  initKnowledgeVectorStore,
 } from "../api";
 import { ChatParams } from "../type";
 import logoImg from "@/assets/logo.svg";
@@ -60,32 +67,45 @@ interface ChatHistory {
 const Chat = (props: { topic_id?: number }) => {
   const { topic_id } = props;
   const [list, setList] = useState([]);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const [aiResponse, setAiResponse] = useState<string>("");
   const [aiResponseLoading, setAiResponseLoading] = useState(false);
   const [chatList, setChatList] = useState<HistoryItem[]>([]);
-  const [chatHistory, setChatHistory] = useState<ChatHistory>({
-    chat: [],
-    kb_chat: [],
-  });
-  // const [selectBrandBar, setSelectBrandBar] = useState("chat");
   const [selectChatId, setSelectChatId] = useState("temp_id");
   const [operateType, setOperateType] = useState("view");
   const [chatName, setChatName] = useState("");
-
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
 
   const initData = async () => {
     setLoading(true);
-    if (topic_id) {
+    if (topic_id || topic_id === 0) {
+      messageApi.open({
+        type: 'loading',
+        content: '主题初始化中...',
+        duration: 0,
+      });
+      // Dismiss manually and asynchronously
       const res: any = await getChatlist({ topic_id: topic_id });
       if (res.code === 0) {
         setList(res.data);
+        messageApi.open({
+          type: 'success',
+          content: '对话加载成功',
+        });
         // if (res.data.length > 0) {
         //   setChatList(res.data[0].id);
         // }
       }
+      const resInit: any = await initKnowledgeVectorStore({ topic_id: topic_id });
+      if (resInit.code === 0) {
+        messageApi.open({
+          type: 'success',
+          content: '主题初始化成功',
+        });
+      }
+      messageApi.destroy()
     }
     setLoading(false);
   };
@@ -98,9 +118,7 @@ const Chat = (props: { topic_id?: number }) => {
   }, [chatList]);
 
   useEffect(() => {
-    if (topic_id) {
-      initData();
-    }
+    initData();
   }, [topic_id]);
 
   // useEffect(() => {
@@ -120,7 +138,7 @@ const Chat = (props: { topic_id?: number }) => {
     // 获取结构化数据库
     const data: ChatModel = {
       id: selectChatId,
-      is_query: topic_id === 4 ? false : true,
+      is_query: topic_id === 0 ? false : true,
       question: questionMsg ? questionMsg.content : "",
       history: [],
       model: "v2",
@@ -132,12 +150,12 @@ const Chat = (props: { topic_id?: number }) => {
       if (selectChatId === "temp_id") {
         newSelectChatId = await handleOpreate({
           id: selectChatId,
-          name: questionMsg ? questionMsg.content.slice(0, 5) : "新增对话",
+          name: questionMsg ? questionMsg.content.slice(0, 15) : "新增对话",
         });
       }
       console.log("newSelectChatId", newSelectChatId);
       await getSimilarTextByUrl(
-        { ...data, id: newSelectChatId },
+        { ...data, id: newSelectChatId, topic_id },
         (text: any, status: "loading" | "ended") => {
           if (status === "ended") {
             setAiResponseLoading(false);
@@ -185,7 +203,7 @@ const Chat = (props: { topic_id?: number }) => {
   // topic_id?: number;
   // user_id?: number;
   const handleOpreate = async (chat: ChatParams) => {
-    if (!topic_id) {
+    if (!topic_id && topic_id !== 0) {
       return;
     }
     let res: any;
@@ -244,6 +262,10 @@ const Chat = (props: { topic_id?: number }) => {
   };
 
   async function handleChangeChat(chat_id: string) {
+    if (chat_id === "temp_id") {
+      setChatList([]);
+      return;
+    }
     const res: any = await getChatDetaillist({ chat_id });
     if (res.code === 0 && Array.isArray(res.data)) {
       res.data.forEach((item: any) => {
@@ -261,12 +283,13 @@ const Chat = (props: { topic_id?: number }) => {
 
   const texts = [
     "写一个关于手机的文案策划",
-    "写一个小故事关于小熊和维尼",
-    "写一个工业制造的未来畅想",
+    "使用Java编写一个小游戏",
+    "谈谈未来AI的发展",
   ];
 
   return (
     <div id="chat-list">
+      {contextHolder}
       <div className="chat-content">
         <div className="chat-l">
           {[
@@ -376,7 +399,36 @@ const Chat = (props: { topic_id?: number }) => {
                     }
                   ></Avatar>
                   <div className="c-msg">
-                    <ReactMarkdown children={chatListItem.content} />
+                    <ReactMarkdown
+                      remarkPlugins={[
+                        [
+                          remarkGfm,
+                          { tableCellPadding: true, tablePipeAlign: true },
+                        ],
+                        remarkMath,
+                      ]}
+                      rehypePlugins={[rehypeKatex]}
+                      // remarkPlugins={[remarkGfm, remarkParse, remarkRehype]}
+                      components={{
+                        code({ node, inline, className, children, ...props }) {
+                          const match = /language-(\w+)/.exec(className || "");
+                          return !inline && match ? (
+                            <SyntaxHighlighter
+                              {...props}
+                              children={String(children).replace(/\n$/, "")}
+                              style={vscDarkPlus}
+                              language={match[1]}
+                              PreTag="div"
+                            />
+                          ) : (
+                            <code {...props} className={className}>
+                              {children}
+                            </code>
+                          );
+                        },
+                      }}
+                      children={chatListItem.content}
+                    />
                   </div>
                 </div>
               ))
@@ -393,7 +445,7 @@ const Chat = (props: { topic_id?: number }) => {
                       style={{
                         textAlign: "center",
                         fontSize: "16px",
-                        marginBottom: "30px",
+                        marginBottom: "40px",
                       }}
                     >
                       尝试下列案例

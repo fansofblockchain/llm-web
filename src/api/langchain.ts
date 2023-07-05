@@ -14,7 +14,7 @@ interface HistoryItem {
 function debounce(func: Function, delay: number) {
   let timeoutId: any;
 
-  return  (...args: any) => {
+  return (...args: any) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
       // @ts-ignore
@@ -30,7 +30,7 @@ export default async function getResponseEventStream(
 ) {
   try {
     const response: any = await fetch(
-      "http://model.responds.top/api/demo/get_lang",
+      "http://web.responds.top/api/demo/get_lang",
       {
         method: "POST", // 设置请求方法为 POST
         body: JSON.stringify(data), // 将请求的数据 JSON 格式化
@@ -44,6 +44,7 @@ export default async function getResponseEventStream(
     const reader = response.body.getReader();
 
     // 读取数据
+    let newChunk='';
     async function readData() {
       try {
         const result = await reader.read();
@@ -58,26 +59,32 @@ export default async function getResponseEventStream(
           );
           return;
         } else {
-          let newChunk = chunk;
-          if (chunk.indexOf(`}{"text"`) > -1 && !data.model) {
-            let index = chunk.lastIndexOf("}{");
-            newChunk = chunk.slice(index + 1);
+        
+          if (chunk.length > newChunk.length) {
+            newChunk = chunk;
+            if (chunk.indexOf(`}{"text"`) > -1 && !data.model) {
+              let index = chunk.lastIndexOf("}{");
+              newChunk = chunk.slice(index + 1);
+            }
+            try {
+              // debounce(
+                getChunk(
+                  data.model
+                    ? newChunk
+                        .replace("('role', 'assistant', '", "")
+                        .replace("('role', 'assistant", "")
+                        .replace("('content', '", "")
+                        .replace("')", "")
+                    : JSON.parse(newChunk).text,
+                  result.done ? "ended" : "loading"
+                )
+              //   1000
+              // );
+            } catch (error) {
+              console.log("error:对象不是一个json对象");
+            }
           }
-          try {
-            debounce( getChunk(
-              data.model
-                ? newChunk
-                    .replace("('role', 'assistant', '", "")
-                    .replace("('role', 'assistant", "")
-                    .replace("('content', '", "")
-                    .replace("')", "")
-                : JSON.parse(newChunk).text,
-              result.done ? "ended" : "loading"
-            ), 1000);
-           
-          } catch (error) {
-            console.log("error:对象不是一个json对象");
-          }
+         
         }
         // 继续读取
         setTimeout(() => readData(), 0);

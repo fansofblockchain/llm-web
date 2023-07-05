@@ -45,7 +45,7 @@ const Login: React.FC = () => {
         <div id="login" className={isMobile ? "mobile-bg" : ""}>
           {!isMobile && (
             <div className="left">
-              <div className="left-text">Let AI Serve Everyone</div>
+              <div className="left-text">Industry's Leading Augmented AI Platform</div>
             </div>
           )}
           <div className="right" style={{ width: isMobile ? "100%" : "50%" }}>

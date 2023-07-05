@@ -124,3 +124,12 @@ export const addChatDetail = (data: ChatDetailParams) => {
     data,
   });
 };
+
+export const initKnowledgeVectorStore = (params: { topic_id: number }) => {
+  /**添加对话 */
+  return http({
+    url: "/demo/init_knowledge_vector_store",
+    method: "get",
+    params,
+  });
+};

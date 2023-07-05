@@ -23,8 +23,16 @@ const TeamSelect = (props: Props) => {
         team.value = team.team_id;
         team.label = team.name;
       });
+      if (!props.is_manager) {
+        result.data.unshift({
+          value: 0,
+          label: "公库",
+        });
+      }
       setList(result.data);
-      result.data && result.data[0] && props.onChange(result.data[0].value);
+      if (!props.value) {
+        result.data && result.data[0] && props.onChange(result.data[0].value);
+      }
     }
     setLoading(false);
   };
