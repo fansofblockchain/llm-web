@@ -86,7 +86,7 @@ const App: React.FC = () => {
             <Card
               key={param.id}
               onClick={() => {
-                navigate(`/console/team/manager?team_id=${param.id}`);
+                navigate(`/console/team/manager?team_id=${param.team_id}`);
               }}
               className="card-box"
               style={{

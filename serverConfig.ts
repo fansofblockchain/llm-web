@@ -8,7 +8,7 @@ switch (
     // baseURL = "https://signarl.com";
     break;
   case "development":
-    baseURL = "http://web.responds.top";
+    baseURL = "http://model.responds.top";
     break;
   default:
     baseURL = "http://web.responds.top";

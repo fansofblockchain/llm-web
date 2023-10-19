@@ -8,6 +8,7 @@ import type { ColumnsType } from "antd/es/table";
 import { getFileList, deleteFile } from "../api";
 import { LoadingOutlined } from "@ant-design/icons";
 import "./index.less";
+import serverConfig from "../../../../serverConfig";
 
 const { Dragger } = Upload;
 
@@ -19,15 +20,16 @@ interface DataType {
 
 interface Props {
   topic_id?: number;
+  readonly?: boolean;
 }
 
 const ChatStorageManager = (props: Props) => {
-  const { topic_id } = props;
+  const { topic_id, readonly } = props;
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchData = async (topic_id: number) => {
-    setLoading(true);
+  const fetchData = async (topic_id: number, isTimer?: boolean) => {
+    !isTimer && setLoading(true);
     const result: any = await getFileList({ topic_id });
     if (result.code === 0 && result.data) {
       result.data.forEach((item: any) => {
@@ -38,7 +40,7 @@ const ChatStorageManager = (props: Props) => {
         setList(result.data);
       }
     }
-    setLoading(false);
+    !isTimer && setLoading(false);
   };
   const columns: ColumnsType<DataType> = [
     {
@@ -62,31 +64,39 @@ const ChatStorageManager = (props: Props) => {
         </div>
       ),
     },
-    {
+  ];
+
+  if (!readonly) {
+    columns.push({
       title: "Action",
       dataIndex: "id",
       key: "x",
-      width: 100,
+      width: 200,
       render: (id) => (
-        <a
-          onClick={() => {
-            Modal.info({
-              title: "是否删除该文档",
-              content: "删除该文档后模型将无法根据该文档进行问答",
-              onOk: async () => {
-                const res: any = await deleteFile({ id: id });
-                if (res.code === 0) {
-                  topic_id && fetchData(topic_id);
-                }
-              },
-            });
-          }}
-        >
-          删除
-        </a>
+        <div>
+          <a style={{ marginRight: 16 }} onClick={() => {}}>
+            上传图片
+          </a>
+          <a
+            onClick={() => {
+              Modal.info({
+                title: "是否删除该文档",
+                content: "删除该文档后模型将无法根据该文档进行问答",
+                onOk: async () => {
+                  const res: any = await deleteFile({ id: id });
+                  if (res.code === 0) {
+                    topic_id && fetchData(topic_id);
+                  }
+                },
+              });
+            }}
+          >
+            删除
+          </a>
+        </div>
       ),
-    },
-  ];
+    });
+  }
   // useEffect(() => {
   //   if (topic_id) {
   //     fetchData(topic_id);
@@ -101,7 +111,7 @@ const ChatStorageManager = (props: Props) => {
     const timer = setInterval(() => {
       // 在这里调用 fetchData 函数进行数据拉取
       if (topic_id) {
-        fetchData(topic_id);
+        fetchData(topic_id, true);
       }
     }, 10000); // 每10秒执行一次
 
@@ -114,7 +124,7 @@ const ChatStorageManager = (props: Props) => {
   const uploadProps: UploadProps = {
     name: "file",
     multiple: true,
-    action: `http://web.responds.top/api/demo/uploadfile/${topic_id}`,
+    action: serverConfig.baseURL + `/api/demo/uploadfile/${topic_id}`,
     onChange(info) {
       const { status } = info.file;
       if (status !== "uploading") {
@@ -134,16 +144,18 @@ const ChatStorageManager = (props: Props) => {
   return (
     <div id="data-manager">
       <div className="upload-box">
-        <Dragger {...uploadProps} className="upload-box">
-          <p className="ant-upload-text upload-text">
-            您可以导入任何你获取的文件文档
-          </p>
-          <p className="ant-upload-drag-icon">
-            <img src={pdfImg} alt="" className="uplaod-img" />
-            <img src={mdImg} alt="" className="uplaod-img" />
-            <img src={txtImg} alt="" className="uplaod-img" />
-          </p>
-        </Dragger>
+        {!readonly && (
+          <Dragger {...uploadProps} className="upload-box">
+            <p className="ant-upload-text upload-text">
+              您可以导入任何你获取的文件文档
+            </p>
+            <p className="ant-upload-drag-icon">
+              <img src={pdfImg} alt="" className="uplaod-img" />
+              <img src={mdImg} alt="" className="uplaod-img" />
+              <img src={txtImg} alt="" className="uplaod-img" />
+            </p>
+          </Dragger>
+        )}
         <div className="upload-history">
           <Table
             loading={loading}

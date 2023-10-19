@@ -1,4 +1,4 @@
-import { EditOutlined, DeleteOutlined,PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Avatar, Card, Skeleton, Switch, Modal, message, Spin } from "antd";
 import React, { useState, useEffect } from "react";
 import { TopicParams } from "../../team/type";
@@ -35,11 +35,16 @@ const App = (props: Props) => {
       const result: any = await getTopicList({ team_id: team_id });
       if (result.code === 0) {
         setList(result.data);
-        if(!topic_id){
-          result.data && result.data[0] && setTopicId(result.data[0].id);
+        // if(!topic_id){
+        if (result.data && result.data[0]) {
+          setTopicId(result.data[0].id);
+        } else {
+          setTopicId(-1);
         }
       }
       setLoading(false);
+    } else {
+      setTopicId(-1);
     }
   };
 
@@ -98,7 +103,12 @@ const App = (props: Props) => {
             className={`${
               topic_id === item.id ? "topic-select " : " "
             }topic-item`}
-            onClick={() => setTopicId(item.id)}
+            onClick={() => {
+              if (loading || saveLoading) {
+                return;
+              }
+              setTopicId(item.id);
+            }}
           >
             {item.name}
             {!readonly && (

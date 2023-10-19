@@ -3,7 +3,7 @@ interface ChatModel {
   id: string;
   question: string;
   is_query?: boolean;
-  model?: boolean;
+  model?: string;
 }
 
 interface HistoryItem {
@@ -44,7 +44,8 @@ export default async function getResponseEventStream(
     const reader = response.body.getReader();
 
     // 读取数据
-    let newChunk='';
+    let newChunk = "";
+
     async function readData() {
       try {
         const result = await reader.read();
@@ -59,32 +60,33 @@ export default async function getResponseEventStream(
           );
           return;
         } else {
-        
-          if (chunk.length > newChunk.length) {
-            newChunk = chunk;
-            if (chunk.indexOf(`}{"text"`) > -1 && !data.model) {
-              let index = chunk.lastIndexOf("}{");
-              newChunk = chunk.slice(index + 1);
-            }
-            try {
-              // debounce(
+          try {
+            if (data.model === "v2") {
+              if (chunk) {
+                let index = chunk.lastIndexOf("start:>>>");
+                newChunk = chunk.slice(index + 9, chunk.length);
+              }
+
+              newChunk &&
                 getChunk(
-                  data.model
-                    ? newChunk
-                        .replace("('role', 'assistant', '", "")
-                        .replace("('role', 'assistant", "")
-                        .replace("('content', '", "")
-                        .replace("')", "")
-                    : JSON.parse(newChunk).text,
+                  newChunk
+                    .replace("('role', 'assistant', '", "")
+                    .replace("('role', 'assistant", "")
+                    .replace("('content', '", "")
+                    .replace("')", ""),
                   result.done ? "ended" : "loading"
-                )
-              //   1000
-              // );
-            } catch (error) {
-              console.log("error:对象不是一个json对象");
+                );
+            } else {
+              if (chunk) {
+                getChunk(
+                  JSON.parse(newChunk).choices[0].text,
+                  result.done ? "ended" : "loading"
+                );
+              }
             }
+          } catch (error) {
+            console.log("error:对象不是一个json对象");
           }
-         
         }
         // 继续读取
         setTimeout(() => readData(), 0);

@@ -52,7 +52,7 @@ serviceAxios.interceptors.response.use(
   (error) => {
     if (error && error.response) {
       //使用key:value的形式
-      if (error.response.data && error.response.data.code === 401) {
+      if (error.response && error.response.status === 401) {
         location.href = "/login";
       }
       return messageMap[error.response.status] || "default";

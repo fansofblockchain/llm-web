@@ -1,4 +1,5 @@
 import http from "../api/http";
+import { ChatModel } from "../api/gpt";
 import { ChatParams, ChatDetailParams } from "./type";
 
 //get请求
@@ -125,11 +126,31 @@ export const addChatDetail = (data: ChatDetailParams) => {
   });
 };
 
-export const initKnowledgeVectorStore = (params: { topic_id: number }) => {
+export const initKnowledgeVectorStore = (params: {
+  topic_id: number;
+  force: boolean;
+}) => {
   /**添加对话 */
   return http({
     url: "/demo/init_knowledge_vector_store",
     method: "get",
     params,
+  });
+};
+
+export const getTableNames = () => {
+  /**添加对话 */
+  return http({
+    url: "/demo/get_custom_tables",
+    method: "get",
+  });
+};
+
+export const getSqlLang = (data: ChatModel) => {
+  /**添加对话 */
+  return http({
+    url: "/demo/get_lang",
+    method: "post",
+    data,
   });
 };

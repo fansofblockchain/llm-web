@@ -4,7 +4,6 @@ import Layout from "./pages/Layout";
 import Console from "./pages/Console";
 import Login from "./pages/user/login";
 import Chat from "./pages/Chat";
-import ChatStorageManager from "./pages/ChatStorageManager";
 import Register from "./pages/user/register";
 import TeamList from "./pages/team/list";
 import AccountList from "./pages/account/list";

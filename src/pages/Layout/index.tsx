@@ -70,12 +70,13 @@ const LayoutContainer: React.FC = () => {
   const [selectMenu, setSelectMenu] = useState(["list"]);
 
   useEffect(() => {
-    initUser();
+    initData();
   }, []);
 
-  async function initUser() {
+  async function initData() {
     const res: any = await getUser();
     localStorageService.setItem("user", res.data);
+
   }
 
   const toggleCollapsed = () => {
@@ -136,20 +137,6 @@ const LayoutContainer: React.FC = () => {
             {/* <Button onClick={handleThemeClick}>角色</Button> */}
           </Header>
           <Layout>
-            <Button
-              type="primary"
-              onClick={toggleCollapsed}
-              size="small"
-              style={{
-                marginBottom: 16,
-                position: "absolute",
-                bottom: 15,
-                left: 15,
-                zIndex: 999,
-              }}
-            >
-              {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            </Button>
             {selectTeam !== 0 && (
               <Sider
                 width={collapsed ? 0 : 200}
@@ -164,10 +151,24 @@ const LayoutContainer: React.FC = () => {
                   setTopicId={setTopicId}
                   readonly={true}
                 />
+                <Button
+                  type="primary"
+                  onClick={toggleCollapsed}
+                  size="small"
+                  style={{
+                    marginBottom: 16,
+                    position: "absolute",
+                    bottom: 15,
+                    left: 15,
+                    zIndex: 999,
+                  }}
+                >
+                  {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                </Button>
               </Sider>
             )}
 
-            <Layout style={{ padding: "18px 24px 18px 24px" }}>
+            <Layout style={{ margin: "8x 16px 8px 16px" }}>
               <Content
                 style={{
                   margin: 0,
@@ -175,10 +176,18 @@ const LayoutContainer: React.FC = () => {
                   overflow: "auto",
                 }}
               >
-                <div className="c-banner">
-                  {/* <img src={bannerImg} alt="" /> */}
-                </div>
-                <div className="c-chat">
+                {selectTeam !== 0 ? null : <div className="c-banner"></div>}
+
+                <div
+                  className="c-chat"
+                  style={
+                    selectTeam !== 0
+                      ? {
+                          height: "calc(100% - 20px)",
+                        }
+                      : {}
+                  }
+                >
                   <Chat topic_id={selectTeam === 0 ? 0 : topic_id} />
                 </div>
               </Content>

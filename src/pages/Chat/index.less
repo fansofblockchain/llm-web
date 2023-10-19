@@ -64,6 +64,8 @@
       height: 100%;
       border-right: 1px solid @primary-color-13;
       box-shadow: inset 0 0 0 -1px @primary-color-13;
+      overflow-x: hidden;
+      overflow-y: auto;
       .l-cont {
         width: 270px;
         // height: 90px;
@@ -102,20 +104,23 @@
     }
     .chat-r {
       width: calc(100% - 330px);
+      display: flex;
+      flex-direction: column;
       height: 100%;
       .chat-r-c {
         width: 100%;
+        flex-grow: 1;
         overflow-x: hidden;
         overflow-y: auto;
         height: calc(100% - 51px);
       }
-      .chat-r-c::-webkit-scrollbar {
-        width: 0px;
-        opacity: 0;
-        -webkit-overflow-scrolling: touch;
-      }
+      // .chat-r-c::-webkit-scrollbar {
+      //   width: 0px;
+      //   opacity: 0;
+      //   -webkit-overflow-scrolling: touch;
+      // }
       .c-r-content {
-        margin: 18px 20px 0 20px;
+        margin: 16px;
         width: calc(100%);
         display: flex;
       }
@@ -124,7 +129,7 @@
         height: 35px;
         margin-right: 18px;
         padding: 5px;
-        background:#fff;
+        background: #fff;
       }
       .c-msg {
         font-family: PingFangSC-Regular;
@@ -135,14 +140,15 @@
         font-size: 14px;
         color: @font-color-1;
         font-weight: 400;
-        padding: 15px 20px;
+        padding: 8px;
       }
       .input-text {
         width: calc(100% - 20px);
         height: 40px;
+        margin-bottom: 5px;
         background: #181818;
         border: 1px solid #4b4b4b;
-        border-radius: 20px;
+        border-radius: 5px;
         margin-left: 20px;
       }
       .send-img {
@@ -150,9 +156,19 @@
         height: 20px;
         cursor: pointer;
         margin-right: 8px;
-        // color: white;
         // background-color: white;
       }
     }
   }
+  .send-btn {
+    position: absolute;
+    right: 0px;
+    bottom: 20px;
+    width: 100px;
+  }
+  // .input-text::-webkit-scrollbar {
+  //   width: 1px;
+  //   opacity: 0.1;
+  //   -webkit-overflow-scrolling: touch;
+  // }
 }
